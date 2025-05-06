@@ -10,4 +10,4 @@ Ultimately, you are responsible for 5 deliverables:
 4. A summary of your analysis
 5. Supporting visualizations and key findings
 
-which you will present in your choice of format. I have chosen to include the 5 deliverables in one PowerPoint presentation, which includes links to the Excel and SQL documentation found in this repositiories, and a link to the [Tableau dashboard](https://public.tableau.com/app/profile/elizabeth.a.walter/viz/Cyclistic_17442458867340/Dashboard1) of these figures.
+which you will present in your choice of format. I have chosen to include the 5 deliverables in one PowerPoint presentation (available in this repository), which includes links to the Excel and SQL documentation found in this repositiory, and a link to the [Tableau dashboard](https://public.tableau.com/app/profile/elizabeth.a.walter/viz/Cyclistic_17442458867340/Dashboard1) of these figures.
