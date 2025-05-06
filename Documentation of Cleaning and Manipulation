@@ -1,0 +1,12 @@
+In Excel, the following actions were performed for each of the 12 excel sheets:
+
+1. Filter to get a look of the data. 
+2. Add a row called day_of_week, using started_at column, where 1 = Sunday, 2 = Monday, etc. 
+3. Added a row called ride_length by subtracting ended_at column from started_at column.
+4. Ride length was validated with conditional formatting using day_of_week and temp column day_of_week_end, where if day_of_week != day_of_week_end, ride_length was checked to be over 24 hrs
+5. Ride length was properly formatted to account for rides that lasted over several days that were not being properly added up by the default formatting.
+
+In SQL, the following queries were run to clean and manipulate the data:
+
+After loading the data, the tables were combined. There was an issue with inconsistent data types that had to be fixed before all 12 tables could be joined. 
+
