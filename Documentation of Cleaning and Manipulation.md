@@ -8,8 +8,8 @@ In Excel, the following actions were performed for each of the 12 excel sheets:
 
 In SQL, the following queries were run to clean and manipulate the data:
 
-After loading the data, the tables were combined. There was an issue with inconsistent data types that had to be fixed before all 12 tables could be joined. 
-
+1. After loading the data, the tables were combined. There was an issue with inconsistent data types that had to be fixed before all 12 tables could be joined. 
+```sql
 ALTER TABLE Cyclistic_Data.12_2020
 RENAME column ride_length TO ride_length_string;
 
@@ -102,3 +102,92 @@ CREATE TABLE Cyclistic_Data.combined_trips AS
   SELECT * FROM Cyclistic_Data.04_2021
 )
 
+```
+2. Data was explored. I investigated the data, looked for nulls and errors and their possible causes and effects on the data.
+
+```sql
+
+SELECT
+count(ride_id)
+FROM Cyclistic_Data.combined_trips;
+--- output: 3756620 rows
+
+SELECT
+count(member_casual)
+FROM 
+  Cyclistic_Data.combined_trips
+WHERE
+member_casual = "casual";
+--- 2213971 members - 59% of users
+--- 1542649 casual riders - 41%
+
+SELECT
+distinct(day_of_week)
+FROM Cyclistic_Data.combined_trips;
+--- seven days confirmed
+
+
+--- create geography data types of long & lat
+SELECT
+  st_geogpoint(start_lng,start_lat) AS start_coords,
+FROM Cyclistic_Data.combined_trips;
+
+SELECT
+  st_geogpoint(end_lng,end_lat) AS end_coords,
+FROM Cyclistic_Data.combined_trips;
+
+
+
+SELECT DISTINCT
+  CONCAT(start_lat, start_lng) AS start_coords
+FROM Cyclistic_Data.combined_trips
+WHERE 
+  start_lat IS NULL
+  OR start_lng IS NULL;
+
+--- no missing start coords
+
+SELECT
+  start_station_name
+FROM Cyclistic_Data.combined_trips
+  WHERE start_station_name IS NULL;
+
+SELECT
+  start_station_id
+FROM Cyclistic_Data.combined_trips
+  WHERE start_station_id IS NULL;
+
+--- 552137 unique start coordinates
+--- they say they only have 692 stations
+--- 141898 entries where start station name is NULL
+--- 142479 entries where start station id is NULL
+      ---- discrepancy interesting. Cause? relevant?
+--- no entries where start coordinates are NULL
+--- those rides were started NOT at stations
+
+
+SELECT DISTINCT
+  end_station_name
+FROM Cyclistic_Data.combined_trips
+  WHERE end_station_name IS NOT NULL;
+
+--- 711 stations listed - dont have the formal list of stations to compare to for errors; 
+---   several "(Temp)" names may account for doubles. Do we keep?
+
+SELECT DISTINCT
+  start_station_name
+FROM Cyclistic_Data.combined_trips
+  WHERE start_station_name IS NOT NULL;
+
+--- 713 start stations; presence of "(Temp)" stations
+
+SELECT
+  end_station_id
+FROM Cyclistic_Data.combined_trips
+  WHERE end_station_id IS NULL;
+
+--- 158787 where end station name is NULL
+--- 159201 where end station id is NULL
+```
+3. Data was segmented, aggregated, and further analyzed.
+   
