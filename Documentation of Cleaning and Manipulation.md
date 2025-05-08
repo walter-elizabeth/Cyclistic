@@ -231,8 +231,10 @@ FROM Cyclistic_Data.start_stations;
 --- 3 'test' stations removed/changed to null
       --- when changed to null gets us down to 696
 --- when non nulls dropped get 141,898 less rides
+```
+3. Data was segmented, aggregated, and further analyzed.
 
-
+```sql
 DROP TABLE IF EXISTS Cyclistic_Data.start_stations;
 
 CREATE TABLE Cyclistic_Data.start_stations AS (
@@ -274,12 +276,7 @@ end_station_name IS NOT NULL
 --- after, 700
 
 SELECT DISTINCT
-  CASE
-  WHEN CONTAINS_SUBSTR(start_station_name, "(Temp)") = TRUE THEN REPLACE(start_station_name, "(Temp)", "")
-  WHEN CONTAINS_SUBSTR(start_station_name, "(*)") = TRUE THEN NULL
-  WHEN CONTAINS_SUBSTR(start_station_name, "test") = TRUE THEN NULL
-  ELSE start_station_name
-  END AS start_station_name,
+  start_station_name,
   CONCAT(AVG(start_lat),  " ,", AVG(start_lng)) AS avg_start_coords
 FROM Cyclistic_Data.start_stations
 WHERE
@@ -288,5 +285,55 @@ GROUP BY start_station_name
 ORDER BY start_station_name;
 --- 551506 start coords for ~ 700 start stations
 --- avg start coords to fix
+
+SELECT DISTINCT
+CASE
+  WHEN start_station_name = end_station_name THEN start_station_name
+  END AS station_name,
+  COUNT(start_station_name) AS rides_from_station,
+  COUNT(end_station_name) AS rides_to_station
+FROM Cyclistic_Data.combined_trips
+GROUP BY station_name
+ORDER BY station_name ASC
+
+SELECT
+  EXTRACT(MONTH from started_at) month,
+  (AVG(TIMESTAMP_DIFF(ended_at, started_at, MINUTE))) AS avg_duration_min,
+  COUNT(ride_id) AS no_rides
+FROM
+  Cyclistic_Data.combined_trips
+GROUP BY month
+ORDER BY avg_duration_min DESC;
+--- ride length and count by month
+
+SELECT
+  EXTRACT(DAY from started_at) AS day,
+  (AVG(TIMESTAMP_DIFF(ended_at, started_at, MINUTE))) AS avg_duration_min,
+  COUNT(ride_id) AS no_rides
+FROM
+  Cyclistic_Data.combined_trips
+GROUP BY day
+ORDER BY avg_duration_min DESC;
+--- ride length and count by day of month
+
+SELECT
+  day_of_week,
+  (AVG(TIMESTAMP_DIFF(ended_at, started_at, MINUTE))) AS avg_duration_min,
+  COUNT(ride_id) AS no_rides
+FROM
+  Cyclistic_Data.combined_trips
+GROUP BY day_of_week
+ORDER BY no_rides DESC, avg_duration_min DESC;
+--- ride length and count by day of month
+
+SELECT
+  EXTRACT(HOUR from started_at) AS hr_of_day,
+  (AVG(TIMESTAMP_DIFF(ended_at, started_at, MINUTE))) AS avg_duration_min,
+  COUNT(ride_id) AS no_rides
+FROM
+  Cyclistic_Data.combined_trips
+GROUP BY hr_of_day
+ORDER BY no_rides, avg_duration_min DESC;
+--- ride length and count by hr of day
+
 ```
-3. Data was segmented, aggregated, and further analyzed.
