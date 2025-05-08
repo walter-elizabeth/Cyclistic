@@ -107,6 +107,8 @@ CREATE TABLE Cyclistic_Data.combined_trips AS
 
 ```sql
 
+---- data exploration 
+
 SELECT
 count(ride_id)
 FROM Cyclistic_Data.combined_trips;
@@ -188,6 +190,103 @@ FROM Cyclistic_Data.combined_trips
 
 --- 158787 where end station name is NULL
 --- 159201 where end station id is NULL
+
+
+SELECT DISTINCT
+*
+FROM Cyclistic_Data.start_stations;
+
+--- stations repeat that have various start_lats and start_lngs
+  --- WHY??? and what to do
+
+SELECT DISTINCT
+start_station_name
+FROM Cyclistic_Data.start_stations
+ORDER BY 
+start_station_name;
+
+--- 713 results.... should only be ~692 looks like all have 2 with diff station ids
+
+SELECT
+COUNT(DISTINCT(start_station_name))
+FROM Cyclistic_Data.start_stations
+WHERE CONTAINS_SUBSTR(start_station_name, "(*)") = TRUE;
+
+--- 349 instances where "(*)" found in station name, 9 distinct
+--- 21300 instances where "Temp" is found in name, 7 distinct
+  --- we dont know what the * means, temp maybe should be kept bc functions the same as regular. should we change the name to regular
+  --- 5 other, looked like special temp stations
+
+SELECT
+CASE
+  WHEN CONTAINS_SUBSTR(start_station_name, "(Temp)") = TRUE THEN REPLACE(start_station_name, "(Temp)", "")
+  WHEN CONTAINS_SUBSTR(start_station_name, "(*)") = TRUE THEN NULL
+  WHEN CONTAINS_SUBSTR(start_station_name, "test") = TRUE THEN NULL
+  ELSE start_station_name
+  END
+FROM Cyclistic_Data.start_stations;
+
+--- rename temp stations to regular station name; takes us down to 707 unique stations
+---- gonna leave (*) alone bc idk what it means - is it an error? maybe just remove the stations 
+--- 3 'test' stations removed/changed to null
+      --- when changed to null gets us down to 696
+--- when non nulls dropped get 141,898 less rides
+
+
+DROP TABLE IF EXISTS Cyclistic_Data.start_stations;
+
+CREATE TABLE Cyclistic_Data.start_stations AS (
+SELECT
+  CASE
+  WHEN CONTAINS_SUBSTR(start_station_name, "(Temp)") = TRUE THEN REPLACE(start_station_name, "(Temp)", "")
+  WHEN CONTAINS_SUBSTR(start_station_name, "(*)") = TRUE THEN NULL
+  WHEN CONTAINS_SUBSTR(start_station_name, "test") = TRUE THEN NULL
+  ELSE start_station_name
+  END AS start_station_name,
+start_station_id,
+start_lat,
+start_lng
+FROM Cyclistic_Data.combined_trips
+WHERE
+start_station_name IS NOT NULL
+);
+
+
+DROP TABLE IF EXISTS Cyclistic_Data.end_stations;
+
+CREATE TABLE Cyclistic_Data.end_stations AS (
+SELECT
+CASE
+  WHEN CONTAINS_SUBSTR(end_station_name, "(Temp)") = TRUE THEN REPLACE(end_station_name, "(Temp)", "")
+  WHEN CONTAINS_SUBSTR(end_station_name, "(*)") = TRUE THEN NULL
+  WHEN CONTAINS_SUBSTR(end_station_name, "test") = TRUE THEN NULL
+  ELSE end_station_name
+  END AS end_station_name,
+end_station_id,
+end_lat,
+end_lng
+FROM Cyclistic_Data.combined_trips
+WHERE
+end_station_name IS NOT NULL
+);
+
+---- before eliminating those stations 711 stations
+--- after, 700
+
+SELECT DISTINCT
+  CASE
+  WHEN CONTAINS_SUBSTR(start_station_name, "(Temp)") = TRUE THEN REPLACE(start_station_name, "(Temp)", "")
+  WHEN CONTAINS_SUBSTR(start_station_name, "(*)") = TRUE THEN NULL
+  WHEN CONTAINS_SUBSTR(start_station_name, "test") = TRUE THEN NULL
+  ELSE start_station_name
+  END AS start_station_name,
+  CONCAT(AVG(start_lat),  " ,", AVG(start_lng)) AS avg_start_coords
+FROM Cyclistic_Data.start_stations
+WHERE
+  start_station_name IS NOT NULL
+GROUP BY start_station_name
+ORDER BY start_station_name;
+--- 551506 start coords for ~ 700 start stations
+--- avg start coords to fix
 ```
 3. Data was segmented, aggregated, and further analyzed.
-   
