@@ -335,5 +335,6 @@ FROM
 GROUP BY hr_of_day
 ORDER BY no_rides, avg_duration_min DESC;
 --- ride length and count by hr of day
-
 ```
+
+4. Data was visualized in Tableau
