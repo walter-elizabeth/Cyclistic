@@ -103,6 +103,8 @@ CREATE TABLE Cyclistic_Data.combined_trips AS
 )
 
 ```
+
+
 2. Data was explored. I investigated the data, looked for nulls and errors and their possible causes and effects on the data.
 
 ```sql
@@ -232,6 +234,8 @@ FROM Cyclistic_Data.start_stations;
       --- when changed to null gets us down to 696
 --- when non nulls dropped get 141,898 less rides
 ```
+
+
 3. Data was segmented, aggregated, and further analyzed.
 
 ```sql
