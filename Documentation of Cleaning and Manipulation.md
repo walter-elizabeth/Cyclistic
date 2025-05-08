@@ -297,6 +297,26 @@ GROUP BY station_name
 ORDER BY station_name ASC
 
 SELECT
+  start_station_name,
+  CONCAT(AVG(start_lat),  ", ", AVG(start_lng)) AS avg_station_coords,
+  COUNT(ride_id) AS no_rides
+FROM Cyclistic_Data.combined_trips
+WHERE
+  start_station_name IS NOT NULL
+GROUP BY start_station_name
+ORDER BY no_rides DESC;
+
+SELECT
+  end_station_name,
+  CONCAT(AVG(end_lat),  ", ", AVG(end_lng)) AS avg_station_coords,
+  COUNT(ride_id) AS no_rides
+FROM Cyclistic_Data.combined_trips
+WHERE
+  end_station_name IS NOT NULL
+GROUP BY end_station_name
+ORDER BY no_rides DESC;
+
+SELECT
   EXTRACT(MONTH from started_at) month,
   (AVG(TIMESTAMP_DIFF(ended_at, started_at, MINUTE))) AS avg_duration_min,
   COUNT(ride_id) AS no_rides
@@ -335,6 +355,8 @@ FROM
 GROUP BY hr_of_day
 ORDER BY no_rides, avg_duration_min DESC;
 --- ride length and count by hr of day
+
+
 ```
 
 4. Data was visualized in Tableau
